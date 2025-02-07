@@ -157,11 +157,12 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
         /// <param name="e">The <see cref="T:System.EventArgs" /> object that contains the event data.</param>
         protected override void OnLoad( EventArgs e )
         {
-
-            if( !IsPostBack )
+            if ( !IsPostBack )
             {
-                var username = GetUserPreference( "com.bemaservices.eSpace.Username" );
-                var password = Rock.Security.Encryption.DecryptString( GetUserPreference( "com.bemaservices.eSpace.Password" ) );
+                var preferences = GetBlockPersonPreferences();
+
+                var username = preferences.GetValue( "com.bemaservices.eSpace.Username" );
+                var password = Rock.Security.Encryption.DecryptString( preferences.GetValue( "com.bemaservices.eSpace.Password" ) );
 
                 //Require Number of People
                 if ( GetAttributeValue( "RequireNumberOfPeople" ).AsBoolean() )
@@ -178,7 +179,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                 if ( !username.Any() || !password.Any() )
                 {
                     ShowUsernamePasswordPanel();
-                    
+
                 }
                 else //continue loading
                 {
@@ -186,11 +187,10 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                     BindLocationsAndCategories();
                 }
             }
-            
 
             base.OnLoad( e );
         }
- 
+
 
         #endregion
 
@@ -202,7 +202,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
         protected override void LoadViewState( object savedState )
         {
             base.LoadViewState( savedState );
-            
+
         }
 
         /// <summary>
@@ -269,7 +269,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                 treeResources.Nodes.Clear();
             }
             var nodes = list.Where( x => ( parentNode == null ) ? ( x.ParentId == null ) : ( x.ParentId == int.Parse( parentNode.Value ) ) ).ToList();
-            
+
             foreach ( var node in nodes )
             {
                 TreeNode newNode = new TreeNode( node.Name, node.Id.ToString() );
@@ -287,7 +287,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                 {
                     parentNode.ChildNodes.Add( newNode );
                 }
-                
+
                 BindResourceTree( list, newNode );
             }
         }
@@ -321,8 +321,10 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
 
         private dynamic CallRestAPIeSPACE( string url )
         {
-            var username = GetUserPreference( "com.bemaservices.eSpace.Username" );
-            var password = Rock.Security.Encryption.DecryptString( GetUserPreference( "com.bemaservices.eSpace.Password" ) );
+            var preferences = GetBlockPersonPreferences();
+
+            var username = preferences.GetValue( "com.bemaservices.eSpace.Username" );
+            var password = Rock.Security.Encryption.DecryptString( preferences.GetValue( "com.bemaservices.eSpace.Password" ) );
 
             using ( var httpClient = new WebClient() )
             {
@@ -338,19 +340,22 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                 }
                 catch
                 {
-                    SetUserPreference( "com.bemaservices.eSpace.Password", "", true );
+                    preferences.SetValue( "com.bemaservices.eSpace.Password", "" );
+                    preferences.Save();
                     hfErrorMessage.Value = "Could Not Get Data; Please Re-Enter Password";
                     ShowUsernamePasswordPanel();
                 }
-                
+
             }
             return null;
         }
 
         private dynamic CallPOSTRestAPIeSPACE( string url, System.Collections.Specialized.NameValueCollection parameters, string data )
         {
-            var username = GetUserPreference( "com.bemaservices.eSpace.Username" );
-            var password = Rock.Security.Encryption.DecryptString( GetUserPreference( "com.bemaservices.eSpace.Password" ) );
+            var preferences = GetBlockPersonPreferences();
+
+            var username = preferences.GetValue( "com.bemaservices.eSpace.Username" );
+            var password = Rock.Security.Encryption.DecryptString( preferences.GetValue( "com.bemaservices.eSpace.Password" ) );
 
             using ( var httpClient = new WebClient() )
             {
@@ -370,7 +375,8 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                 catch
                 {
                     //TODO
-                    SetUserPreference( "com.bemaservices.eSpace.Password", "", true );
+                    preferences.SetValue( "com.bemaservices.eSpace.Password", "" );
+                    preferences.Save();
                     hfErrorMessage.Value = "Could Not Get Data; Please Re-Enter Password";
                     ShowUsernamePasswordPanel();
                 }
@@ -381,8 +387,10 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
 
         private dynamic CallPUTRestAPIeSPACE( string url, System.Collections.Specialized.NameValueCollection parameters, string data )
         {
-            var username = GetUserPreference( "com.bemaservices.eSpace.Username" );
-            var password = Rock.Security.Encryption.DecryptString( GetUserPreference( "com.bemaservices.eSpace.Password" ) );
+            var preferences = GetBlockPersonPreferences();
+
+            var username = preferences.GetValue( "com.bemaservices.eSpace.Username" );
+            var password = Rock.Security.Encryption.DecryptString( preferences.GetValue( "com.bemaservices.eSpace.Password" ) );
 
             using ( var httpClient = new WebClient() )
             {
@@ -402,7 +410,8 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                 catch
                 {
                     //TODO
-                    SetUserPreference( "com.bemaservices.eSpace.Password", "", true );
+                    preferences.SetValue( "com.bemaservices.eSpace.Password", "" );
+                    preferences.Save();
                     hfErrorMessage.Value = "Could Not Get Data; Please Re-Enter Password";
                     ShowUsernamePasswordPanel();
                 }
@@ -413,8 +422,10 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
 
         private string CallDELETERestAPIeSPACE( string url )
         {
-            var username = GetUserPreference( "com.bemaservices.eSpace.Username" );
-            var password = Rock.Security.Encryption.DecryptString( GetUserPreference( "com.bemaservices.eSpace.Password" ) );
+            var preferences = GetBlockPersonPreferences();
+
+            var username = preferences.GetValue( "com.bemaservices.eSpace.Username" );
+            var password = Rock.Security.Encryption.DecryptString( preferences.GetValue( "com.bemaservices.eSpace.Password" ) );
 
             using ( var httpClient = new WebClient() )
             {
@@ -428,7 +439,8 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                 }
                 catch
                 {
-                    SetUserPreference( "com.bemaservices.eSpace.Password", "", true );
+                    preferences.SetValue( "com.bemaservices.eSpace.Password", "" );
+                    preferences.Save();
                     hfErrorMessage.Value = "Could Not Get Data; Please Re-Enter Password";
                     ShowUsernamePasswordPanel();
                 }
@@ -439,7 +451,9 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
 
         private void ShowUsernamePasswordPanel()
         {
-            var username = GetUserPreference( "com.bemaservices.eSpace.Username" );
+            var preferences = GetBlockPersonPreferences();
+
+            var username = preferences.GetValue( "com.bemaservices.eSpace.Username" );
             pnlAPIEntry.Visible = true;
             nbAlert.Text = "Please Enter Your eSPACE Credentials";
             if ( hfErrorMessage.Value.IsNotNullOrWhiteSpace() )
@@ -559,7 +573,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
             {
                 //space has ItemId, ItemType, Name, LocationName, LocationId, Parent_id, ParentName, and IsSchedulable
                 allSpaces.AddRange( GetSpacesFromObject( space ) );
-                
+
             }
             if ( allSpaces.Count() <= 1 )
             {
@@ -576,7 +590,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
             //allResources.Add( new SelectedResource() );
             foreach ( var resource in allResourcesData )
             {
-                allResources.AddRange( GetResourcesFromObject( resource ) );  
+                allResources.AddRange( GetResourcesFromObject( resource ) );
             }
             if ( allResources.Count() <= 1 )
             {
@@ -631,44 +645,44 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
             eventData.Locations = cblLocations.SelectedValuesAsInt.ToArray();
 
             //Event Schedule
-            if( !dtpSetupStart.SelectedDateTimeIsBlank )
+            if ( !dtpSetupStart.SelectedDateTimeIsBlank )
             {
-                eventData.SetupStartDate = dtpSetupStart.SelectedDateTime.Value.ToString("o");
-                eventData.SetupStartTime = dtpSetupStart.SelectedDateTime.Value.ToString("HH:mm:ss");
+                eventData.SetupStartDate = dtpSetupStart.SelectedDateTime.Value.ToString( "o" );
+                eventData.SetupStartTime = dtpSetupStart.SelectedDateTime.Value.ToString( "HH:mm:ss" );
             }
-            if( !dtpSetupEnd.SelectedDateTimeIsBlank )
+            if ( !dtpSetupEnd.SelectedDateTimeIsBlank )
             {
-                eventData.TeardownEndDate = dtpSetupEnd.SelectedDateTime.Value.ToString("o");
-                eventData.TearDownEndTime = dtpSetupEnd.SelectedDateTime.Value.ToString("HH:mm:ss");
+                eventData.TeardownEndDate = dtpSetupEnd.SelectedDateTime.Value.ToString( "o" );
+                eventData.TearDownEndTime = dtpSetupEnd.SelectedDateTime.Value.ToString( "HH:mm:ss" );
             }
-            if( dateEventEnd.SelectedDate.HasValue )
+            if ( dateEventEnd.SelectedDate.HasValue )
             {
-                eventData.EventEndDate = dateEventEnd.SelectedDate.Value.ToString("o");
+                eventData.EventEndDate = dateEventEnd.SelectedDate.Value.ToString( "o" );
             }
-            if( timeEventEnd.SelectedTime.HasValue )
+            if ( timeEventEnd.SelectedTime.HasValue )
             {
                 eventData.EndTime = timeEventEnd.SelectedTime.Value.ToString( "c" );
             }
             //must have start date
-            eventData.EventDate = dateEventStart.SelectedDate.Value.ToString("o");
-            if( timeEventStart.SelectedTime.HasValue )
+            eventData.EventDate = dateEventStart.SelectedDate.Value.ToString( "o" );
+            if ( timeEventStart.SelectedTime.HasValue )
             {
                 eventData.StartTime = timeEventStart.SelectedTime.Value.ToString( "c" );
             }
-            
+
 
             //Parse iCalendar repeater for additional dates (only up to two years)
-            if( scheduleBuilder.iCalendarContent.IsNotNullOrWhiteSpace() )
+            if ( scheduleBuilder.iCalendarContent.IsNotNullOrWhiteSpace() )
             {
                 var iCalContent = scheduleBuilder.iCalendarContent;
                 var calendarColleciton = DDay.iCal.iCalendar.LoadFromStream( iCalContent.ToStreamReader() );
-                var iCal = calendarColleciton.First( c => c.iCalendar.IsNotNull() );
+                var iCal = calendarColleciton.First( c => c.iCalendar != null );
                 var iCalEvent = iCal.Events.First();
                 var occurrenceList = iCalEvent.GetOccurrences( dateEventStart.SelectedDate.Value, dateEventStart.SelectedDate.Value.AddYears( 2 ) );
 
-                eventData.AdditionalDates = occurrenceList.Select( o => o.Period.StartTime.Date.ToString("o") ).ToArray();
+                eventData.AdditionalDates = occurrenceList.Select( o => o.Period.StartTime.Date.ToString( "o" ) ).ToArray();
             }
-            
+
 
             //convert eventData to string json
             data = JsonConvert.SerializeObject( eventData );
@@ -681,7 +695,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
             int? scheduleId = null;
 
             submitLiteral.Text = "<p>Creating Event</p>";
-            var eventResponse =  CallPOSTRestAPIeSPACE( "event/create", null, data );
+            var eventResponse = CallPOSTRestAPIeSPACE( "event/create", null, data );
             try
             {
                 eventId = eventResponse.EventId;
@@ -696,7 +710,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
 
             hfEventId.Value = eventId.ToStringSafe();
             hfScheduleId.Value = scheduleId.ToStringSafe();
-            
+
         }
 
         /// <summary>
@@ -762,8 +776,8 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                 catch
                 {
                     submitLiteral.Text = "<p>Event Needs Further Information</p>";
-                    submitLiteral.Text += "<p>" +  submitRespObject.Message + "<p>";
-                    submitLiteral.Text += "<br/><a target='_blank' class='btn btn-primary' href='https://app.espace.cool/EventDetails?eventId=" + eventId + "&scheduleId=" + scheduleId  + "&page=setup" + "'>Click to Continue in eSpace</a>";
+                    submitLiteral.Text += "<p>" + submitRespObject.Message + "<p>";
+                    submitLiteral.Text += "<br/><a target='_blank' class='btn btn-primary' href='https://app.espace.cool/EventDetails?eventId=" + eventId + "&scheduleId=" + scheduleId + "&page=setup" + "'>Click to Continue in eSpace</a>";
 
                 }
 
@@ -787,12 +801,12 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
             //Add Resources (and fetch qty)
 
             List<int> selectedResourceIds = new List<int>();
-            foreach( TreeNode resource in treeResources.CheckedNodes )
+            foreach ( TreeNode resource in treeResources.CheckedNodes )
             {
                 selectedResourceIds.Add( resource.Value.AsInteger() );
-                
+
             }
-            foreach( RepeaterItem item in rptResourceQty.Items )
+            foreach ( RepeaterItem item in rptResourceQty.Items )
             {
                 if ( item.ItemType == ListItemType.Item || item.ItemType == ListItemType.AlternatingItem )
                 {
@@ -808,7 +822,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
             //Add Services
 
             List<int> selectedServiceIds = new List<int>();
-            foreach( TreeNode service in treeServices.CheckedNodes )
+            foreach ( TreeNode service in treeServices.CheckedNodes )
             {
                 selectedServiceIds.Add( service.Value.AsInteger() );
             }
@@ -824,9 +838,12 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
         protected void btnAPIKeySave_Click( object sender, EventArgs e )
         {
             //Set user preferences, but encrypt the password
-            SetUserPreference( "com.bemaservices.eSpace.Username", tbAPIUsername.Text, true );
-            SetUserPreference( "com.bemaservices.eSpace.Password", Rock.Security.Encryption.EncryptString( tbAPIPassword.Text ), true );
-            
+            var preferences = GetBlockPersonPreferences();
+
+            preferences.SetValue( "com.bemaservices.eSpace.Username", tbAPIUsername.Text );
+            preferences.SetValue( "com.bemaservices.eSpace.Password", Rock.Security.Encryption.EncryptString( tbAPIPassword.Text ) );
+            preferences.Save();
+
             NavigateToCurrentPage(); //refresh page to get new API
         }
 
@@ -850,8 +867,8 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
                 timeEventStart.Visible = true;
                 timeEventEnd.Visible = true;
             }
-            
-            
+
+
         }
 
         /// <summary>
@@ -862,7 +879,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
         protected void scheduleBuilder_Load( object sender, EventArgs e )
         {
             //Use recursive method to find the startdatetime control and fill it with the event start datetime (wont really be used in event submission)
-            DateTimePicker dpStartDateTime = ( DateTimePicker ) FindControlRecursive(scheduleBuilder, "dpStartDateTime_scheduleBuilderPopupContents_scheduleBuilder" );
+            DateTimePicker dpStartDateTime = ( DateTimePicker ) FindControlRecursive( scheduleBuilder, "dpStartDateTime_scheduleBuilderPopupContents_scheduleBuilder" );
             if ( dpStartDateTime != null )
             {
                 dpStartDateTime.SelectedDateTime = dateEventStart.SelectedDate;
@@ -871,7 +888,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
 
         private Control FindControlRecursive( Control parentControl, string name )
         {
-            foreach( Control child in parentControl.Controls )
+            foreach ( Control child in parentControl.Controls )
             {
                 if ( child.ID == name )
                 {
@@ -960,7 +977,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
         //        //if Id is not null, select it
         //        ddlSpacesItem.SelectedValue = DataBinder.Eval( e.Item.DataItem, "Id" ).ToStringSafe();
         //    }
-            
+
         //}
 
         /// <summary>
@@ -992,7 +1009,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
         //        {
         //            nbQuantity.Visible = false;
         //        }
-                
+
         //    }
 
         //}
@@ -1155,7 +1172,7 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
             //Delete event
             var delete = CallDELETERestAPIeSPACE( "event/delete?eventId=" + eventId );
 
-            
+
         }
 
 
@@ -1163,15 +1180,15 @@ namespace RockWeb.Plugins.com_bemaservices.eSpace
         {
             NavigateToCurrentPageReference();
         }
-        
+
         protected void dateEventStart_TextChanged( object sender, EventArgs e )
         {
-            if( dateEventStart.SelectedDate != null && dateEventEnd.SelectedDate == null )
+            if ( dateEventStart.SelectedDate != null && dateEventEnd.SelectedDate == null )
             {
                 dateEventEnd.SelectedDate = dateEventStart.SelectedDate;
             }
         }
-        
+
 
         #endregion
 
